@@ -1,0 +1,43 @@
+{
+  "name": "sowrensen/wormhole",
+  "description": "Plug and play file uploader for Laravel applications.",
+  "keywords": [
+    "file-uploader",
+    "base64-file",
+    "laravel",
+    "storage"
+  ],
+  "homepage": "https://github.com/sowrensen/Wormhole",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Sowren Sen",
+      "email": "sowrensen@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^5.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "Sowren\\Wormhole\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Sowren\\Wormhole\\Test\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Sowren\\Wormhole\\WormholeServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

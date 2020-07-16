@@ -1,0 +1,28 @@
+export default {
+    methods: {
+        /* Show a toast message for successful task. */
+        showSuccessToast(body, title) {
+            $(document).Toasts('create', {
+                title: title || 'Success',
+                body: body,
+                autohide: true,
+                delay: 6000,
+                close: true,
+                icon: 'fas fa-check',
+                class: 'bg-success mt-2'
+            });
+        },
+        /* Show a toast message for failed task. */
+        showFailedToast(body, title) {
+            $(document).Toasts('create', {
+                title: title || 'Failed',
+                body: body,
+                autohide: true,
+                delay: 6000,
+                close: true,
+                icon: 'fas fa-exclamation-triangle',
+                class: 'bg-danger mt-2',
+            });
+        }
+    }
+}
