@@ -2,6 +2,7 @@
 
 namespace Sowren\Wormhole;
 
+use Exception;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -15,18 +16,52 @@ class Wormhole
      * @param  string  $field  The input field name, default is 'file'
      * @param  string  $directory  The directory in which file should be saved, default is 'files'
      * @return string The file name
+     * @throws Exception
      */
     public function saveFile(Request $request, string $field = 'file', string $directory = 'files'): string
     {
         $filename = '';
         if (!request($field)) {
-            return $filename;
+            throw new Exception('Input field not found!');
         }
-        $file = $request->file($field);
-        $filename = Str::random(8).'_'.time().'.'.$file->getClientOriginalExtension();
-        $file->storeAs($directory.'/', $filename, 'public');
 
-        return $filename;
+        try {
+            $file = $request->file($field);
+            $filename = Str::random(8).'_'.time().'.'.$file->getClientOriginalExtension();
+            $file->storeAs($directory.'/', $filename, 'public');
+            return $filename;
+        } catch (Exception $exception) {
+            throw $exception;
+        }
+    }
+
+    /**
+     * Save a Base64 encoded file to storage.
+     *
+     * @param  Request  $request  The request object
+     * @param  string  $field  The input field name, default is 'file'
+     * @param  string  $directory  The directory in which file should be saved, default is 'files'
+     * @return string The file name
+     * @throws Exception
+     */
+    public function saveBase64File(Request $request, string $field = 'file', string $directory = 'files'): string
+    {
+        $filename = '';
+        if (!$request->input($field)) {
+            throw new Exception('Input field not found!');
+        }
+        try {
+            $data = $request->input($field);
+            if (preg_match('/^data:(\w+)\/(\w+);base64,/', $data, $type)) {
+                list(, $file64) = explode(',', explode(';', $data)[1]);
+                $extension = strtolower($type[2]);
+                $filename = Str::random(8).'_'.time().'.'.$extension;
+                Storage::disk('public')->put('/'.$directory.'/'.$filename, base64_decode($file64));
+            }
+            return $filename;
+        } catch (Exception $exception) {
+            throw $exception;
+        }
     }
 
     /**
@@ -42,37 +77,5 @@ class Wormhole
             return false;
         }
         return Storage::disk('public')->delete($directory.'/'.$filename);
-    }
-
-    /**
-     * Save a Base64 encoded file to storage.
-     *
-     * @param  Request  $request  The request object
-     * @param  string  $field  The input field name, default is 'file'
-     * @param  string  $directory  The directory in which file should be saved, default is 'files'
-     * @return string The file name
-     */
-    public function saveBase64File(Request $request, string $field = 'file', string $directory = 'files'): string
-    {
-        $filename = '';
-        if (!request($field)) {
-            return $filename;
-        }
-
-        $fileB64 = $request->input($field);
-        if ($fileB64 == "") {
-            return $filename;
-        }
-
-        list($type, $fileB64) = explode(';', $fileB64);
-        list(, $fileB64) = explode(',', $fileB64);
-
-        $extension = explode('/', mime_content_type($base64_encoded_string))[1];
-        $filename = Str::random(8).'_'.time().'.'.$extension;
-        $file = base64_decode($fileB64);
-        // Store image in public disk
-        Storage::disk('public')->put('/'.$directory.'/'.$filename, $file);
-
-        return $filename;
     }
 }
