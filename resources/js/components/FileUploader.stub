@@ -123,7 +123,7 @@
 
       abortUpload () {
         clearInterval(this.timer)
-        this.seconds = 5
+        this.seconds = this.wait
         this.showCancelButton = false
         this.file = null
         this.resetFileInput()
@@ -137,7 +137,7 @@
           if (this.seconds === 0) {
             clearInterval(this.timer)
             this.showCancelButton = false
-            this.seconds = 5
+            this.seconds = this.wait
             return this.uploadFile()
           }
         }, 1000)
