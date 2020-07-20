@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Sowren\Wormhole;
-
 
 use Illuminate\Support\ServiceProvider;
 
