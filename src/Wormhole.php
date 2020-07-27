@@ -22,7 +22,8 @@ class Wormhole
     {
         $filename = '';
         if (!request($field)) {
-            throw new Exception('Input field not found!');
+            // Do not throw an error as input field is not available when no file attached
+            return $filename;
         }
 
         try {
@@ -48,17 +49,22 @@ class Wormhole
     {
         $filename = '';
         if (!$request->input($field)) {
-            throw new Exception('Input field not found!');
+            // Do not throw an error as input field is not available when no file attached
+            return $filename;
         }
         try {
             $data = $request->input($field);
             if (preg_match('/^data:(\w+)\/(\w+);base64,/', $data, $type)) {
+                // Extract file data from base64 string which will be saved as binary file
                 list(, $file64) = explode(',', explode(';', $data)[1]);
                 $extension = strtolower($type[2]);
                 $filename = Str::random(8).'_'.time().'.'.$extension;
+
                 Storage::disk('public')->put('/'.$directory.'/'.$filename, base64_decode($file64));
+                return $filename;
+            } else {
+                throw new \Exception('Invalid file data!');
             }
-            return $filename;
         } catch (Exception $exception) {
             throw $exception;
         }
