@@ -28,38 +28,63 @@ There are three methods provided in this package.
 
 #### 1. saveFile
 
-Use this method to store any binary file. It takes one mandatory and two optional parameters. After successful operation, an auto-generated file name will be returned, you should save this to your database.
+Use this method to store any binary file. It takes one mandatory and two optional parameters. After successful operation, an auto-generated file name will be returned, you should store this for future use.
 
-Parameter | Type | Description
-:---------|:-----|:-----------
-`$request` | \Illuminate\Http\Request | An usual Request object (Required)
-`$field` | string | The attribute name which contains the file. Default is `'file'`.
-`$directory` | string |  The directory name in which the file should be stored, it will be placed inside `storage/app/public` folder of Laravel app. Default is `'files'`.
+Parameter | Type | Required | Default | Description
+:---------|:-----|:---------|:--------|:-----------
+`$file` | \Illuminate\Http\UploadedFile | Yes | | The file to be uploaded, like, `$request->file('file')`.
+`$directory` | string | No | files | The directory name in which the file should be stored.
+`$disk` | string | No | public | The Laravel disk name in which the file should be stored.
 
-**Returns**: The auto-generated file name. 
+##### Returns
+ 
+The auto-generated file name.
+
+##### Example
+
+```php
+ $filename = Wormhole::saveFile($request->file('avatar'), 'avatars', 'public');
+```
 
 #### 2. saveBase64File
 
-Use this method to store any Base64 encoded file. An example use case of Base64 encoded file when you resize and crop an image in a canvas before uploading. The parameters are same as `saveFile` method. After successful operation, an auto-generated file name will be returned, you should save this to your database.
+Use this method to store any Base64 encoded file. An example use case of Base64 encoded file when you resize and crop an image in a canvas before uploading. The second and third parameters are same as `saveFile` method. After successful operation, an auto-generated file name will be returned, you should store this for future use.
 
-Parameter | Type | Description
-:---------|:-----|:-----------
-`$request` | \Illuminate\Http\Request | An usual Request object (Required)
-`$field` | string | The attribute name which contains the file. Default is `file`.
-`$directory` | string |  The directory name in which the file should be stored, it will be placed inside `storage/app/public` folder of Laravel app. Default is `'files'`.
+Parameter | Type | Required | Default | Description
+:---------|:-----|:---------|:--------|:-----------
+`$data` | string | Yes | | Base64 string, pass like `$request->input('file')`.
+`$directory` | string | No | files | The directory name in which the file should be stored.
+`$disk` | string | No | public | The Laravel disk name in which the file should be stored.
 
-**Returns**: The auto-generated file name.
+##### Returns
+ 
+The auto-generated file name.
+
+##### Example
+
+```php
+ $filename = Wormhole::saveBase64File($request->input('avatar'), 'avatars', 'public');
+```
 
 #### 3. deleteFile
 
 This method takes one mandatory parameter and one optional parameter. 
 
-Parameter | Type | Description
-:---------|:-----|:-----------
-`$filename` | string | Name of the file to be removed (Required)
-`$directory` | string | Name of the directory where the file resides inside `storage/app/public`. Default is `'files'`.
+Parameter | Type | Required | Default | Description
+:---------|:-----|:---------|:--------|:-----------
+`$filename` | string | Yes | | Name of the file to be removed (Required)
+`$directory` | string | No | files | Name of the directory where the file resides.
+`$disk` | string | No | public | The Laravel disk name in which the file is stored.
 
-**Returns**: `true` or `false` depending on operation status.
+##### Returns 
+
+`true` or `false` depending on operation status.
+
+##### Example
+
+```php
+ Wormhole::deleteFile('eJd5m08f_1597305889.png', 'avatars', 'public');
+```
 
 Vue Component
 ---

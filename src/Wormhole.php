@@ -4,7 +4,7 @@ namespace Sowren\Wormhole;
 
 use Exception;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 class Wormhole
@@ -12,24 +12,17 @@ class Wormhole
     /**
      * Save file to storage.
      *
-     * @param  Request  $request  The request object
-     * @param  string  $field  The input field name, default is 'file'
-     * @param  string  $directory  The directory in which file should be saved, default is 'files'
+     * @param  UploadedFile  $file  The file to upload
+     * @param  string  $directory  The directory in which file should be saved, default is 'files'.
+     * @param  string  $disk  The disk where the file should upload
      * @return string The file name
      * @throws Exception
      */
-    public function saveFile(Request $request, string $field = 'file', string $directory = 'files'): string
+    public function saveFile(UploadedFile $file, string $directory = 'files', string $disk = 'public'): string
     {
-        $filename = '';
-        if (!request($field)) {
-            // Do not throw an error as input field is not available when no file attached
-            return $filename;
-        }
-
         try {
-            $file = $request->file($field);
             $filename = Str::random(8).'_'.time().'.'.$file->getClientOriginalExtension();
-            $file->storeAs($directory.'/', $filename, 'public');
+            $file->storeAs($directory.'/', $filename, $disk);
             return $filename;
         } catch (Exception $exception) {
             throw $exception;
@@ -39,28 +32,22 @@ class Wormhole
     /**
      * Save a Base64 encoded file to storage.
      *
-     * @param  Request  $request  The request object
-     * @param  string  $field  The input field name, default is 'file'
+     * @param  string  $data  Base64 file string
      * @param  string  $directory  The directory in which file should be saved, default is 'files'
+     * @param  string  $disk  The disk where the file should upload
      * @return string The file name
      * @throws Exception
      */
-    public function saveBase64File(Request $request, string $field = 'file', string $directory = 'files'): string
+    public function saveBase64File(string $data, string $directory = 'files', string $disk = 'public'): string
     {
-        $filename = '';
-        if (!$request->input($field)) {
-            // Do not throw an error as input field is not available when no file attached
-            return $filename;
-        }
         try {
-            $data = $request->input($field);
             if (preg_match('/^data:(\w+)\/(\w+);base64,/', $data, $type)) {
                 // Extract file data from base64 string which will be saved as binary file
                 list(, $file64) = explode(',', explode(';', $data)[1]);
                 $extension = strtolower($type[2]);
                 $filename = Str::random(8).'_'.time().'.'.$extension;
 
-                Storage::disk('public')->put('/'.$directory.'/'.$filename, base64_decode($file64));
+                Storage::disk($disk)->put('/'.$directory.'/'.$filename, base64_decode($file64));
                 return $filename;
             } else {
                 throw new \Exception('Invalid file data!');
@@ -75,13 +62,14 @@ class Wormhole
      *
      * @param  string  $filename  Name of file to be deleted
      * @param  string  $directory  Directory in which the file resides, default 'files'
+     * @param  string  $disk  Disk in which the file is located
      * @return bool
      */
-    public function deleteFile(string $filename, string $directory = 'files'): bool
+    public function deleteFile(string $filename, string $directory = 'files', string $disk = 'public'): bool
     {
-        if ($filename == '' || !Storage::disk('public')->exists($directory.'/'.$filename)) {
+        if ($filename == '' || !Storage::disk($disk)->exists($directory.'/'.$filename)) {
             return false;
         }
-        return Storage::disk('public')->delete($directory.'/'.$filename);
+        return Storage::disk($disk)->delete($directory.'/'.$filename);
     }
 }
