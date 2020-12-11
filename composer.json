@@ -36,7 +36,10 @@
     "laravel": {
       "providers": [
         "Sowren\\Wormhole\\WormholeServiceProvider"
-      ]
+      ],
+      "aliases": {
+            "Wormhole": "Sowren\\Wormhole\\Facades\\Wormhole"
+        }
     }
   },
   "minimum-stability": "dev",

@@ -32,7 +32,7 @@ class WormholeServiceProvider extends ServiceProvider
      */
     protected function registerFacades()
     {
-        $this->app->singleton('Wormhole', function ($app) {
+        $this->app->bind('wormhole', function ($app) {
             return new \Sowren\Wormhole\Wormhole();
         });
     }
