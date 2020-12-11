@@ -18,12 +18,6 @@ composer require sowrensen/wormhole
 Usage
 ---
 
-You can add an alias to use the facade or you can use it directly. To set an alias add following line in `config/app.php`.
-
-```
-'Wormhole' => Sowren\Wormhole\Facades\Wormhole::class,
-``` 
-
 There are three methods provided in this package. 
 
 #### 1. saveFile
