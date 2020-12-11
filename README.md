@@ -37,7 +37,7 @@ The auto-generated file name.
 ##### Example
 
 ```php
- $filename = Wormhole::saveFile($request->file('avatar'), 'avatars', 'public');
+ $filename = \Wormhole::saveFile($request->file('avatar'), 'avatars', 'public');
 ```
 
 #### 2. saveBase64File
@@ -57,7 +57,7 @@ The auto-generated file name.
 ##### Example
 
 ```php
- $filename = Wormhole::saveBase64File($request->input('avatar'), 'avatars', 'public');
+ $filename = \Wormhole::saveBase64File($request->input('avatar'), 'avatars', 'public');
 ```
 
 #### 3. deleteFile
@@ -77,7 +77,7 @@ Parameter | Type | Required | Default | Description
 ##### Example
 
 ```php
- Wormhole::deleteFile('eJd5m08f_1597305889.png', 'avatars', 'public');
+ \Wormhole::deleteFile('eJd5m08f_1597305889.png', 'avatars', 'public');
 ```
 
 Vue Component
