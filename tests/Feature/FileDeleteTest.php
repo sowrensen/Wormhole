@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 class FileDeleteTest extends TestCase
 {
     /** @test */
-    public function a_file_should_get_deleted()
+    public function testFileDelete()
     {
         $file = UploadedFile::fake()->image('avatar.png');
         $wh = new Wormhole();
