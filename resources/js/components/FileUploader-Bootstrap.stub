@@ -207,7 +207,7 @@ export default {
         autohide: true,
         delay: 6000,
         close: true,
-        icon: 'fas' + status === 'success' ? 'fa-check' : 'fa-exclamation-triangle',
+        icon: 'fas ' + (status === 'success' ? 'fa-check' : 'fa-exclamation-triangle'),
         class: 'mt-2 ' + status === 'success' ? 'bg-success' : 'bg-danger'
       })
     }
