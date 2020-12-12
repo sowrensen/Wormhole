@@ -3,12 +3,14 @@
 namespace Sowren\Wormhole;
 
 use Illuminate\Support\ServiceProvider;
+use Sowren\Wormhole\Console\Commands\PublishCommand;
 
 class WormholeServiceProvider extends ServiceProvider
 {
     public function boot()
     {
         if ($this->app->runningInConsole()) {
+            $this->registerCommands();
             $this->registerPublishing();
         }
 
@@ -45,11 +47,23 @@ class WormholeServiceProvider extends ServiceProvider
     private function registerPublishing()
     {
         $this->publishes([
-            __DIR__.'/../resources/js/components/FileUploader.stub' => resource_path('js/components/FileUploader.vue'),
-        ], 'wormhole-ui');
+            __DIR__.'/../resources/js/components/FileUploader-Bootstrap.stub' => resource_path('js/components/FileUploader.vue'),
+        ], 'wormhole-bootstrap');
 
         $this->publishes([
-            __DIR__.'/../resources/js/mixins/toasts.stub' => resource_path('js/mixins/toasts.js'),
-        ], 'wormhole-js');
+            __DIR__.'/../resources/js/components/FileUploader-UIKit.stub' => resource_path('js/components/FileUploader.vue'),
+        ], 'wormhole-uikit');
+    }
+
+    /**
+     * Register package commands.
+     *
+     * @return void
+     */
+    private function registerCommands()
+    {
+        $this->commands([
+            PublishCommand::class,
+        ]);
     }
 }
