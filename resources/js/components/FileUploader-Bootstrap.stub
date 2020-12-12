@@ -1,0 +1,216 @@
+<template>
+  <div class="my-2">
+    <label v-if="inputLabel" for="file">{{ inputLabel }}</label>
+    <!-- Progress bar -->
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped" :style="`width:${width}%`"></div>
+    </div>
+
+    <!-- Input field -->
+    <div class="form-group mt-2">
+      <div class="input-group">
+        <div class="custom-file">
+          <input type="file" class="custom-file-input" id="file"
+                 ref="file" @change="validateFile" :disabled="uploading || uploaded">
+          <!-- This hidden input field will hold the uploaded file name -->
+          <input type="hidden" :name="fieldName" v-model="filename" required>
+          <label class="custom-file-label" for="file" ref="fileLabel">{{ inputPlaceholder }}</label>
+        </div>
+        <!-- Abort button -->
+        <div class="input-group-append" v-if="showCancelButton">
+          <button type="button" class="btn btn-danger" @click="abortUpload" data-toggle="tooltip"
+                  title="Click to cancel">
+            <i class="far fa-times-circle"></i>
+            Uploading in {{ seconds }} second(s)...
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages depending on upload status -->
+      <small class="form-text text-muted" v-if="!uploading && !uploaded">
+        <span v-if="supportedFormats.length">Supported file formats: {{ supportedFormats.join(', ') }}.</span>
+        <span v-if="maxSize">Maximum file size: {{ maxSize }} MB.</span>
+      </small>
+      <small class="form-text text-danger" v-if="uploading">
+        File is uploading, do not reload or close this page now.
+      </small>
+      <small class="form-text text-success" v-if="uploaded">
+        File has been uploaded, do not reload or close this page. Save to finish the procedure.
+      </small>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    url: {
+      type: String,
+      required: true
+    },
+    inputLabel: {
+      type: String,
+      default: ''
+    },
+    inputPlaceholder: {
+      type: String,
+      default: 'Choose file...'
+    },
+    supportedFormats: {
+      type: Array,
+      default: () => []
+    },
+    maxSize: {
+      type: Number,
+      default: null
+    },
+    fieldName: {
+      type: String,
+      default: 'file'
+    },
+    wait: {
+      type: Number,
+      default: 5
+    }
+  },
+  data () {
+    return {
+      file: null,
+      uploadPercentage: 0,
+      filename: '',
+      uploading: false,
+      uploaded: false,
+      seconds: this.wait,
+      showCancelButton: false,
+      timer: null
+    }
+  },
+  computed: {
+    width () {
+      return this.uploadPercentage
+    }
+  },
+  methods: {
+    validateFile () {
+      this.file = this.$refs.file.files[0]
+      if (this.isFileFormatValid(this.file) && this.isSizeValid(this.file)) {
+        return this.attemptUpload()
+      }
+      this.file = null
+      this.resetFileInput()
+    },
+
+    isFileFormatValid (file) {
+      // In case user doesn't provided any specific format
+      if (!this.supportedFormats.length) {
+        return true
+      }
+      let selectedFileFormat = file.name.split('.').pop().toLowerCase()
+      if (this.supportedFormats.indexOf(selectedFileFormat) === -1) {
+        this.showNotification('Invalid file format!', 'danger')
+        return false
+      }
+      return true
+    },
+
+    isSizeValid (file) {
+      // In case user doesn't provide a size limit
+      if (!this.maxSize) {
+        return true
+      }
+      if ((file.size / 1000000) > this.maxSize) {
+        this.showNotification('File size exceeds maximum allowed limit!', 'danger')
+        return false
+      }
+      return true
+    },
+
+    resetFileInput () {
+      this.$refs.file.value = null
+      this.$refs.fileLabel.textContent = this.inputPlaceholder
+    },
+
+    abortUpload () {
+      clearInterval(this.timer)
+      this.seconds = this.wait
+      this.showCancelButton = false
+      this.file = null
+      this.resetFileInput()
+      this.showNotification('Uploading is explicitly aborted by user', 'danger')
+    },
+
+    attemptUpload () {
+      this.showCancelButton = true
+      this.timer = setInterval(() => {
+        this.seconds--
+        if (this.seconds === 0) {
+          clearInterval(this.timer)
+          this.showCancelButton = false
+          this.seconds = this.wait
+          return this.uploadFile()
+        }
+      }, 1000)
+    },
+
+    uploadFile () {
+      let data = new FormData()
+      data.append('file', this.file)
+      this.uploading = true
+      axios.post(this.url,
+          data,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            },
+            onUploadProgress: (progressEvent) => {
+              this.uploadPercentage = Math.round((progressEvent.loaded / progressEvent.total) * 100)
+            }
+          }
+      ).then(response => {
+        this.doThingsAfterSuccessfulAttempt(response)
+      }).catch(error => {
+        this.doThingsAfterFailedAttempt(error)
+      }).finally(() => this.uploading = false)
+    },
+
+    doThingsAfterSuccessfulAttempt (response) {
+      this.showNotification('File upload successful!', 'success')
+      this.filename = response.data.data
+      this.$refs.file.value = null
+      this.uploaded = true
+    },
+
+    doThingsAfterFailedAttempt (error) {
+      this.uploaded = false
+      this.uploadPercentage = 0
+      this.extractErrorMessages(error)
+    },
+
+    extractErrorMessages (error) {
+      if (error.response && error.response.data) {
+        if (error.response.data.errors) { // Laravel validation errors
+          for (const [field, messages] of Object.entries(error.response.data.errors)) {
+            messages.forEach(message => this.showNotification(message, 'danger'))
+          }
+        } else { // Other application errors
+          this.showNotification(error.response.data.message, 'danger')
+        }
+      } else { // Unhandled server errors
+        console.error(error)
+      }
+    },
+
+    showNotification (message, status) {
+      $(document).Toasts('create', {
+        title: status === 'success' ? 'Success' : 'Failed',
+        body: message,
+        autohide: true,
+        delay: 6000,
+        close: true,
+        icon: 'fas' + status === 'success' ? 'fa-check' : 'fa-exclamation-triangle',
+        class: 'mt-2 ' + status === 'success' ? 'bg-success' : 'bg-danger'
+      })
+    }
+  }
+}
+</script>
