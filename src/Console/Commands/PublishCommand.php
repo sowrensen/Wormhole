@@ -44,6 +44,7 @@ class PublishCommand extends Command
         }
 
         $this->call('vendor:publish', [
+            '--provider' => "Sowren\Wormhole\WormholeServiceProvider",
             '--tag' => $this->argument('preset') == 'uikit' ? 'wormhole-uikit' : 'wormhole-bootstrap'
         ]);
         $this->info('Preset vue component is published');

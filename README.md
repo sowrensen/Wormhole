@@ -83,26 +83,23 @@ Parameter | Type | Required | Default | Description
 Vue Component
 ---
 
-![](assets/sample-upload.gif)
-
-A vue component is provided along with this package which can be used as an interactive input field for uploading files. However, this is solely based on Bootstrap CSS framework and uses jQuery to show bootstrap toasts. But these are entirely non-compulsory. To use the component, publish the resources:
+A vue component is provided along with this package which can be used as an interactive input field for uploading large files. The component is provided in two presets, one for Bootstrap and the other for UIKit. The bootstrap version requires jQuery to work while the UIKit version requires the uikit library. However, these are entirely non-compulsory. To use the component, publish the resources by running:
 
 ```bash
-php artisan vendor:publish --tag=wormhole-ui 
-php artisan vendor:publish --tag=wormhole-js
+php artisan wormhole:publish uikit // or, bootstrap
 ```
 
-`FileUploader.vue` file will be placed at `resources/js/components` and the `toasts.js` will be placed at `resources/js/mixins` directory of your Laravel application. You have to import both of the files in your `app.js`. Afterward, you can use it in your blade files or other vue components,
+`FileUploader.vue` file will be placed at `resources/js/components` directory of your Laravel application. You have to import the component to your `app.js` file. Afterward, you can use it in blade files or other vue components,
 
 ```blade
 <file-uploader
   url="{{ route('files.upload') }}"
   input-label="Attachment"
-  input-placeholder="Select a file"
+  input-placeholder="Select a file..."
   :supported-formats="['pdf', 'doc', 'docx']"
-  max-size="10"
+  :max-size="10"
   field-name="attachment"
-  wait="10"
+  :wait="10"
 >
 </file-uploader>
 ``` 
@@ -113,8 +110,19 @@ Parameter | Type | Required | Default | Description
 :---------|:-----|:---------|:--------|:-----------
 `url` | string | Yes | | The route to send a post request to your app
 `input-label` | string | No | | Label of your input field. It won't be shown unless you set it explicitly.
-`input-placeholder` | string | No | Choose file | Placeholder which will be shown upon file input element.
+`input-placeholder` | string | No | 'Choose file' | Placeholder which will be shown upon file input element.
 `supported-formats` | array | No | null | Defines which type of files are supported. If you set supported formats, the file format will be validated during selection. Also a helper text related to supported formats will be shown under the input element. 
 `max-size` | integer | No | null | Maximum size of selected file in megabyte. If you set the max size property, file size will be validated during selection. Also a helper text related to size will be shown under the input element.
-`field-name` | string | No | file | Once the file is uploaded, a hidden input element will hold the returned name of the file as value so that you can save it in database. This property defines the name of that input element.
+`field-name` | string | No | 'file' | Once the file is uploaded, a hidden input element will hold the returned name of the file as value so that you can save it in database. This property defines the name of that input element.
 `wait` | integer | No | 5 | Defines how long the uploader should wait before starting the upload. This waiting time gives user an opportunity to abort the upload and reselect the file.
+`notification-position` | string | No | 'top-right' | **Only applicable for UIKit component**. Defines the position of the notification pop-up. See available options [here](https://getuikit.com/docs/notification#position).
+
+### Samples
+
+#### UIKit Component
+
+<img src="assets/sample-upload-uikit.gif" width="600">
+
+#### Bootstrap Component
+
+<img src="assets/sample-upload-bootstrap.gif" width="600"/>

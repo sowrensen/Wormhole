@@ -17,7 +17,7 @@
         <!-- Abort button -->
         <button
             type="button"
-            class="uk-button uk-button-default uk-margin-small-left"
+            class="uk-button uk-button-danger uk-margin-small-left"
             v-if="showCancelButton"
             @click="abortUpload"
             uk-tooltip="Click to abort">
