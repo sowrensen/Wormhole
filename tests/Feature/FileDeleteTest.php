@@ -4,8 +4,8 @@
 namespace Sowren\Wormhole\Test\Feature;
 
 use Sowren\Wormhole\Wormhole;
-use Orchestra\Testbench\TestCase;
 use Illuminate\Http\UploadedFile;
+use Sowren\Wormhole\Test\TestCase;
 use Illuminate\Support\Facades\Storage;
 
 class FileDeleteTest extends TestCase

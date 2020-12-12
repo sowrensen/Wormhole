@@ -12,7 +12,7 @@ class PublishCommand extends Command
      * @var string
      */
     protected $signature = 'wormhole:publish
-                            {type : The preset type, uikit or bootstrap}';
+                            {preset : The preset type, uikit or bootstrap}';
 
     /**
      * The console command description.
@@ -38,10 +38,14 @@ class PublishCommand extends Command
      */
     public function handle()
     {
-        $this->call('vendor:publish', [
-            '--tag' => $this->argument('type') == 'uikit' ? 'wormhole-uikit' : 'wormhole-bootstrap'
-        ]);
+        if (!in_array($this->argument('preset'), ['uikit', 'bootstrap'])) {
+            $this->error('Invalid argument, valid presets are uikit or bootstrap');
+            return;
+        }
 
+        $this->call('vendor:publish', [
+            '--tag' => $this->argument('preset') == 'uikit' ? 'wormhole-uikit' : 'wormhole-bootstrap'
+        ]);
         $this->info('Preset vue component is published');
     }
 }
