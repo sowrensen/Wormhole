@@ -35,7 +35,7 @@ class WormholeServiceProvider extends ServiceProvider
     protected function registerFacades()
     {
         $this->app->bind('wormhole', function ($app) {
-            return new \Sowren\Wormhole\Wormhole();
+            return new Wormhole();
         });
     }
 

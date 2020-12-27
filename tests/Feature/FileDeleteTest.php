@@ -3,9 +3,9 @@
 
 namespace Sowren\Wormhole\Test\Feature;
 
-use Sowren\Wormhole\Wormhole;
 use Illuminate\Http\UploadedFile;
 use Sowren\Wormhole\Test\TestCase;
+use Sowren\Wormhole\Facades\Wormhole;
 use Illuminate\Support\Facades\Storage;
 
 class FileDeleteTest extends TestCase
@@ -14,9 +14,8 @@ class FileDeleteTest extends TestCase
     public function testFileDelete()
     {
         $file = UploadedFile::fake()->image('avatar.png');
-        $wh = new Wormhole();
-        $filename = $wh->saveFile($file, 'avatars');
-        $wh->deleteFile($filename, 'avatars');
+        $filename = Wormhole::saveFile($file, 'avatars');
+        Wormhole::deleteFile($filename, 'avatars');
         Storage::disk('public')->assertMissing('avatars/'.$filename);
     }
 }
